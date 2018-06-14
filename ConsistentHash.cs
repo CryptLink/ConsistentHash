@@ -119,12 +119,16 @@ namespace CryptLink
         public void Remove(T node, Hash nodeHash, bool UpdateKeyArray = true) {
             int replicationWeight = replicationWeights[nodeHash];
 
-            for (int i = 0; i < replicationWeight; i++) {
-                nodeHash = nodeHash.Rehash();
+            circle.Remove(nodeHash);
 
-                if (!circle.Remove(nodeHash)) {
-                    throw new Exception("Error removing replicated hashes, this should only happen if: " +
-                    "1. There was a hash collision, 2. The key array was modified outside of this logic");
+            if (replicationWeight > 0) {
+                for (int i = 0; i < replicationWeight; i++) {
+                    nodeHash = nodeHash.Rehash();
+
+                    if (!circle.Remove(nodeHash)) {
+                        throw new Exception("Error removing replicated hashes, this should only happen if: " +
+                        "1. There was a hash collision, 2. The key array was modified outside of this logic");
+                    }
                 }
             }
 
@@ -176,6 +180,11 @@ namespace CryptLink
         }
 
         public bool ContainsNode(Hash key) {
+
+            if (allKeys == null) {
+                throw new NullReferenceException("Key array is null, it may be empty or an .Add() did not update the key array");
+            }
+
             return allKeys.Contains(key);
         }
 
