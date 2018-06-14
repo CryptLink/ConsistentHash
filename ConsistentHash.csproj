@@ -6,7 +6,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CryptLink.SigningFramework\SigningFramework.csproj" />
+    <Compile Remove="Tests\**" />
+    <EmbeddedResource Remove="Tests\**" />
+    <None Remove="Tests\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CryptLink.SigningFramework" Version="1.0.4" />
   </ItemGroup>
 
 </Project>

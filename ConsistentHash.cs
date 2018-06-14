@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CrypthLink
+namespace CryptLink
 {
     //based on consistent-hash https://code.google.com/p/consistent-hash/  (GNU Lesser GPL)
 
@@ -17,7 +17,7 @@ namespace CrypthLink
         SortedDictionary<Hash, T> circle = new SortedDictionary<Hash, T>();
         SortedDictionary<Hash, T> unreplicatedNodes = new SortedDictionary<Hash, T>();
         Dictionary<Hash, int> replicationWeights = new Dictionary<Hash, int>();
-        HashProvider Provider;
+        public HashProvider Provider;
 
         Hash[] allKeys = null;    //cache the ordered keys for better performance
 
@@ -80,6 +80,13 @@ namespace CrypthLink
         /// <param name="ReplicationWeight">Nodes are added multiple times to the namespace to allow for better 
         /// distribution of peers in the address space, the higher the weight the more likely the node will be found while searching</param>
         public void Add(T node, Hash nodeHash, bool updateKeyArray, int ReplicationWeight) {
+
+            if (node == null) {
+                throw new NullReferenceException("Unable to add a null reference to ConsistentHash (null is not hashable)");
+            } else if (node.ComputedHash == null) {
+                throw new NullReferenceException("Provided object has a null ComputedHash, compute the hash before adding");
+            }
+
             circle[nodeHash] = node;
             var rehashed = nodeHash;
 
@@ -109,15 +116,13 @@ namespace CrypthLink
         /// Removes node and all replicas
         /// </summary>
         /// <param name="node"></param>
-        public void Remove(T node, Hash nodeHash) {
+        public void Remove(T node, Hash nodeHash, bool UpdateKeyArray = true) {
             int replicationWeight = replicationWeights[nodeHash];
 
-            Hash newHash = nodeHash;
-
             for (int i = 0; i < replicationWeight; i++) {
-                newHash = nodeHash.Rehash();
+                nodeHash = nodeHash.Rehash();
 
-                if (!circle.Remove(newHash)) {
+                if (!circle.Remove(nodeHash)) {
                     throw new Exception("Error removing replicated hashes, this should only happen if: " +
                     "1. There was a hash collision, 2. The key array was modified outside of this logic");
                 }
@@ -125,7 +130,9 @@ namespace CrypthLink
 
             unreplicatedNodes.Remove(nodeHash);
 
-            allKeys = circle.Keys.ToArray();
+            if (UpdateKeyArray) {
+                allKeys = circle.Keys.ToArray();
+            }
         }
 
         /// <summary>
