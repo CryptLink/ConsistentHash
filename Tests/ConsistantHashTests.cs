@@ -17,10 +17,9 @@ namespace CryptLink.ConsistentHashTests
 
             c.Add(firstItem, true, 0);
             Assert.True(c.ContainsNode(firstItem.ComputedHash));
-
             Assert.True(c.NodeCount == 1);
 
-            c.Remove(firstItem, firstItem.ComputedHash);
+            c.Remove(firstItem);
             Assert.False(c.ContainsNode(firstItem.ComputedHash));
             Assert.True(c.NodeCount == 0);
         }
@@ -33,15 +32,16 @@ namespace CryptLink.ConsistentHashTests
             var thirdItem = new HashableBytes(new byte[] { 0x20, 0x20, 0x20, 0x20, 0x20, 0x20 });
 
             firstItem.ComputeHash(c.Provider, null);
+            secondItem.ComputeHash(c.Provider, null);
+            thirdItem.ComputeHash(c.Provider, null);
 
             c.Add(secondItem, true, 0);
 
             var founditem = c.GetNode(firstItem.ComputedHash);
+            Assert.True(secondItem == founditem);
+
             var founditem2 = c.GetNode(thirdItem.ComputedHash);
-
-            Assert.Equals(secondItem, founditem);
-            Assert.Equals(secondItem, founditem2);
-
+            Assert.True(secondItem == founditem2);
         }
 
         [Test, Category("ConsistantHash")]
@@ -64,14 +64,14 @@ namespace CryptLink.ConsistentHashTests
         [Test, Category("ConsistantHash")]
         public void AddRange() {
             var c = new ConsistentHash<HashableString>(HashProvider.SHA384);
-            var items = new List<HashableString>() {
-                new HashableString(Guid.NewGuid().ToString()),
-                new HashableString(Guid.NewGuid().ToString()),
-                new HashableString(Guid.NewGuid().ToString())
-            };
+            int rounds = 1000;
 
-            foreach (var item in items) {
+            var items = new List<HashableString>();
+
+            for (int i = 0; i < rounds; i++) {
+                var item = new HashableString(Guid.NewGuid().ToString());
                 item.ComputeHash(c.Provider, null);
+                items.Add(item);
             }
 
             c.AddRange(items, true, 0);
@@ -83,7 +83,7 @@ namespace CryptLink.ConsistentHashTests
             Assert.True(c.NodeCount == items.Count);
 
             foreach (var item in items) {
-                c.Remove(item, item.ComputedHash);
+                c.Remove(item);
                 Assert.False(c.ContainsNode(item.ComputedHash));
             }
 
@@ -92,20 +92,25 @@ namespace CryptLink.ConsistentHashTests
 
         [Test, Category("ConsistantHash")]
         public void WeightedAddRemove() {
-            int rounds = 100;
+            int rounds = 1000;
             var c = new ConsistentHash<HashableString>(HashProvider.SHA384);
             var firstItem = new HashableString(Guid.NewGuid().ToString());
             firstItem.ComputeHash(c.Provider, null);
 
             c.Add(firstItem, true, rounds);
             Assert.True(c.ContainsNode(firstItem.ComputedHash));
-            Assert.True(c.NodeCount == rounds);
 
-            c.Remove(firstItem, firstItem.ComputedHash);
+            var rehashed = firstItem.ComputedHash.Rehash();
+            for (int i = 1; i < rounds; i++) {
+                rehashed = firstItem.ComputedHash.Rehash();
+                Assert.True(c.ContainsNode(rehashed));
+            }
+
+            c.Remove(firstItem.ComputedHash, true);
             Assert.False(c.ContainsNode(firstItem.ComputedHash));
             Assert.True(c.NodeCount == 0);
 
-            var rehashed = firstItem.ComputedHash.Rehash();
+            rehashed = firstItem.ComputedHash.Rehash();
             for (int i = 1; i < rounds; i++) {
                 rehashed = firstItem.ComputedHash.Rehash();
                 Assert.False(c.ContainsNode(rehashed));

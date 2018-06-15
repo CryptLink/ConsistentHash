@@ -15,7 +15,7 @@ namespace CryptLink
     public class ConsistentHash<T> where T : IHashable {
 
         SortedDictionary<Hash, T> circle = new SortedDictionary<Hash, T>();
-        SortedDictionary<Hash, T> unreplicatedNodes = new SortedDictionary<Hash, T>();
+        SortedDictionary<Hash, T> uniqueNodes = new SortedDictionary<Hash, T>();
         Dictionary<Hash, int> replicationWeights = new Dictionary<Hash, int>();
         public HashProvider Provider;
 
@@ -30,7 +30,7 @@ namespace CryptLink
         /// </summary>
         public List<T> AllNodes {
             get {
-                return unreplicatedNodes.Values.ToList();
+                return uniqueNodes.Values.ToList();
             }
         }
 
@@ -39,7 +39,7 @@ namespace CryptLink
         /// </summary>
         public long NodeCount {
             get {
-                return unreplicatedNodes.Values.Count();
+                return uniqueNodes.Values.Count();
             }
         }
 
@@ -95,9 +95,9 @@ namespace CryptLink
                 circle[rehashed] = node;
             }
 
-            if (unreplicatedNodes.ContainsKey(nodeHash) == false) {
+            if (uniqueNodes.ContainsKey(nodeHash) == false) {
                 replicationWeights.Add(nodeHash, ReplicationWeight);
-                unreplicatedNodes.Add(nodeHash, node);
+                uniqueNodes.Add(nodeHash, node);
             }
 
             if (updateKeyArray) {
@@ -113,13 +113,23 @@ namespace CryptLink
         }
 
         /// <summary>
-        /// Removes node and all replicas
+        /// Removes an node and all replicas from the collection
         /// </summary>
-        /// <param name="node"></param>
-        public void Remove(T node, Hash nodeHash, bool UpdateKeyArray = true) {
+        /// <param name="Item">Item to remove</param>
+        /// <param name="UpdateKeyArray">If true, update the index after the remove</param>
+        public void Remove(T Item, bool UpdateKeyArray = true) {
+            Remove(Item.ComputedHash, UpdateKeyArray);
+        }
+
+        /// <summary>
+        /// Removes node and all replicas by it's hash
+        /// </summary>
+        /// <param name="node">The item's hash to remove</param>
+        public void Remove(Hash nodeHash, bool UpdateKeyArray = true) {
             int replicationWeight = replicationWeights[nodeHash];
 
             circle.Remove(nodeHash);
+            uniqueNodes.Remove(nodeHash);
 
             if (replicationWeight > 0) {
                 for (int i = 0; i < replicationWeight; i++) {
@@ -131,8 +141,6 @@ namespace CryptLink
                     }
                 }
             }
-
-            unreplicatedNodes.Remove(nodeHash);
 
             if (UpdateKeyArray) {
                 allKeys = circle.Keys.ToArray();
@@ -176,6 +184,11 @@ namespace CryptLink
 
         public T GetNode(Hash key) {
             int first = FirstGreater(key);
+            return circle[allKeys[first]];
+        }
+
+        public T GetNode(T Item) {
+            int first = FirstGreater(Item.ComputedHash);
             return circle[allKeys[first]];
         }
 
