@@ -1,18 +1,28 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>CryptLink</RootNamespace>
+    <Version>1.0.1</Version>
+    <PackageId>CryptLink.ConsistentHash</PackageId>
+    <Authors>Jeremy Peterson</Authors>
+    <Company>CryptLink</Company>
+    <Product>CryptLink.ConsistentHash</Product>
+    <Description>A high performance hash collection for use in a distributed hash table</Description>
+    <Copyright>
+    </Copyright>
+    <PackageProjectUrl>https://github.com/CryptLink/CryptLink.SigningFramework</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/CryptLink/ConsistentHash/blob/master/LICENSE.md</PackageLicenseUrl>
+    <PackageIconUrl>https://avatars0.githubusercontent.com/u/37396837?s=200&amp;v=4</PackageIconUrl>
+    <RepositoryUrl>https://github.com/CryptLink/CryptLink.SigningFramework</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>hash, hashing, crypto, cryptography, DHT, consistent hash, distributed hash table</PackageTags>
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Remove="Tests\**" />
     <EmbeddedResource Remove="Tests\**" />
     <None Remove="Tests\**" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="CryptLink.SigningFramework" Version="1.0.4" />
   </ItemGroup>
-
 </Project>
