@@ -17,5 +17,4 @@ This project relies on (https://github.com/CryptLink/SigningFramework)
 
     //Adds a single item replicated 100 times
     c.Add(firstItem, true, 110);
-
 ```
