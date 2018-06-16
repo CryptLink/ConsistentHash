@@ -6,8 +6,8 @@ To read about the concepts of a Consistent hashing, see (https://en.wikipedia.or
 This project relies on (https://github.com/CryptLink/SigningFramework)
 
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
-[![Build status](https://ci.appveyor.com/api/projects/status/vhtrnq4m0ln13gpb?svg=true)](https://ci.appveyor.com/project/CryptLink/certbuilder)
-[![NuGet](https://img.shields.io/nuget/v/CryptLink.CertBuilder.svg)](https://www.nuget.org/packages/CryptLink.CertBuilder/)
+[![Build status](https://ci.appveyor.com/api/projects/status/mxgyekian0vssada?svg=true)](https://ci.appveyor.com/project/CryptLink/consistenthash)
+[![NuGet](https://img.shields.io/nuget/v/CryptLink.CertBuilder.svg)](https://www.nuget.org/packages/CryptLink.ConsistentHash/)
 
 ## Example
 ``` c#
