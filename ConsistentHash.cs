@@ -177,7 +177,7 @@ namespace CryptLink
         }
 
         public T GetNode(byte[] key) {
-            Hash h = Hash.FromComputedBytes(key, Provider, 0);
+            Hash h = Hash.FromComputedBytes(key, Provider, null, null);
             int first = FirstGreater(h);
             return circle[allKeys[first]];
         }
